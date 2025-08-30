@@ -3,23 +3,20 @@ import OpenAI from 'openai';
 import type { RequestEvent } from '@sveltejs/kit';
 import { OPENAI_API_KEY } from '$lib/env';
 
-const VISION_PROMPT = `Given the dataset below, containing detailed product listings from various online stores, your task is to analyze the information to recommend the most profitable website for me to sell a similar product. The dataset includes information on product titles, descriptions, photos, attributes (like surface, material, size), product and offer URLs, store names, prices, and typical price ranges. Consider these details to:
+const VISION_PROMPT = `Analyze the product dataset and provide ONLY the best selling platform recommendation and 2 other options. Keep it brief and direct.
 
-Calculate the average selling price of similar products across all the listed stores.
-Identify the store that offers the highest potential selling price for a product similar to mine, considering both the prices and product attributes. These websites should be retail websites for indivudal users to sell their items, such as Ebay, Etsy, Amazon, Rakuten, Alibaba, Walmart Marketplace, Craigslist, Wayfair. Big stores such as Target, Nordstrom, or Saks Fifth Avenue, where individuals can't sell their own products, should not be included.
-DO NOT PROVIDE A RATIONALE FOR YOUR RECOMMENDATION
-The "Suggested Website for Selling" should be the highest selling price out of all the suggestions.
-Present your analysis in the following format:
+Format your response exactly like this:
 
--- Suggested Website for Selling: Website Name - <a href="Highest_selling_price">Suggested Selling Price</a>
--- Average Selling Prices at Other Stores: store1 - <a href="URL_for_store1">average_price1</a>, store2 - <a href="URL_for_store2">average_price2</a>, ..., storeN - average_priceN
+**Best Platform:** [Website Name] - $[Price]
+**Other Platforms:**
+- [Store1]: $[Price1]
+- [Store2]: $[Price2]
 
-Here's the dataset for analysis: {product_list}
-Please analyze the dataset to determine the best selling platform for a similar product and outline the average selling prices across different stores. Assume that the product I plan to sell has similar attributes and falls within the same category as those listed in the dataset.`;
+Dataset: {product_list}`;
 
-const PROD_DESCRIPTION_PROMPT = `Given a list of attributes of a product, write a product description to help the user sell the product. The product description should be similar to product descriptions in the "product_description" fields in the product listings provided here: {product_list}.
+const PROD_DESCRIPTION_PROMPT = `Given a list of attributes of a product, write a compelling product description to help the user sell the product. The product description should be similar to product descriptions in the "product_description" fields in the product listings provided here: {product_list}.
 Here is the list of attributes for the product to aid your product description: {attribute_list}
-Do not mention price comparisons from other webistes or stores.`;
+Do not mention price comparisons from other websites or stores. Focus on features, benefits, and selling points.`;
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -38,13 +35,13 @@ export async function POST({ request }: RequestEvent) {
     let messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [];
 
     if (type === 'vision') {
-      // For vision analysis
+      // For selling recommendations only
       prompt = VISION_PROMPT.replace('{product_list}', JSON.stringify(productList, null, 2));
       
       messages = [
         {
           role: 'system' as const,
-          content: 'You are an expert e-commerce analyst specializing in product pricing and marketplace recommendations.'
+          content: 'You are an expert e-commerce analyst. Provide ONLY the requested format - no explanations, no analysis steps, just the recommendations.'
         },
         {
           role: 'user' as const,
@@ -76,10 +73,10 @@ export async function POST({ request }: RequestEvent) {
     }
 
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4',
+      model: 'gpt-4.1',
       messages: messages,
       temperature: 0.7,
-      max_tokens: 1000,
+      max_tokens: 200,
     });
 
     const response = completion.choices[0]?.message?.content;
