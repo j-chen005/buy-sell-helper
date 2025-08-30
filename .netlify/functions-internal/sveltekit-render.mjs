@@ -1,4 +1,6 @@
-export const manifest = (() => {
+import { init } from '../serverless.js';
+
+export const handler = init((() => {
 function __memo(fn) {
 	let value;
 	return () => value ??= (value = fn());
@@ -12,10 +14,10 @@ return {
 	_: {
 		client: {start:"_app/immutable/entry/start.BPV0BlQm.js",app:"_app/immutable/entry/app.D7Xu_L9j.js",imports:["_app/immutable/entry/start.BPV0BlQm.js","_app/immutable/chunks/Nf4Cgrso.js","_app/immutable/chunks/Dus5G4-p.js","_app/immutable/entry/app.D7Xu_L9j.js","_app/immutable/chunks/Dus5G4-p.js","_app/immutable/chunks/IHki7fMi.js"],stylesheets:[],fonts:[],uses_env_dynamic_public:false},
 		nodes: [
-			__memo(() => import('./nodes/0.js')),
-			__memo(() => import('./nodes/1.js')),
-			__memo(() => import('./nodes/2.js')),
-			__memo(() => import('./nodes/3.js'))
+			__memo(() => import('../server/nodes/0.js')),
+			__memo(() => import('../server/nodes/1.js')),
+			__memo(() => import('../server/nodes/2.js')),
+			__memo(() => import('../server/nodes/3.js'))
 		],
 		remotes: {
 			
@@ -33,21 +35,21 @@ return {
 				pattern: /^\/api\/openAI\/buy\/?$/,
 				params: [],
 				page: null,
-				endpoint: __memo(() => import('./entries/endpoints/api/openAI/buy/_server.ts.js'))
+				endpoint: __memo(() => import('../server/entries/endpoints/api/openAI/buy/_server.ts.js'))
 			},
 			{
 				id: "/api/openAI/sell",
 				pattern: /^\/api\/openAI\/sell\/?$/,
 				params: [],
 				page: null,
-				endpoint: __memo(() => import('./entries/endpoints/api/openAI/sell/_server.ts.js'))
+				endpoint: __memo(() => import('../server/entries/endpoints/api/openAI/sell/_server.ts.js'))
 			},
 			{
 				id: "/api/rapidApi",
 				pattern: /^\/api\/rapidApi\/?$/,
 				params: [],
 				page: null,
-				endpoint: __memo(() => import('./entries/endpoints/api/rapidApi/_server.ts.js'))
+				endpoint: __memo(() => import('../server/entries/endpoints/api/rapidApi/_server.ts.js'))
 			},
 			{
 				id: "/buying",
@@ -65,4 +67,4 @@ return {
 		server_assets: {}
 	}
 }
-})();
+})());
