@@ -3,13 +3,11 @@
  * Provides type-safe access to Vite environment variables
  */
 
-// Environment variables are automatically loaded by Vite
-// All variables prefixed with VITE_ are available in import.meta.env
-
 export const env = {
   // API Configuration
   RAPID_API_HOST: import.meta.env.VITE_RAPID_API_HOST || '',
   RAPID_API_KEY: import.meta.env.VITE_RAPID_API_KEY || '',
+  OPENAI_API_KEY: import.meta.env.VITE_OPENAI_KEY || '',
   
   // Feature Flags
   ENABLE_DEBUG_MODE: import.meta.env.VITE_ENABLE_DEBUG_MODE === 'true',
@@ -25,7 +23,8 @@ export const env = {
 export function validateEnv() {
   const required = [
     'RAPID_API_HOST',
-    'RAPID_API_KEY'
+    'RAPID_API_KEY',
+    'OPENAI_API_KEY'
   ];
   
   const missing = required.filter(key => !env[key]);
@@ -42,6 +41,7 @@ export function validateEnv() {
 export const {
   RAPID_API_HOST,
   RAPID_API_KEY,
+  OPENAI_API_KEY,
   ENABLE_DEBUG_MODE,
   ENABLE_ANALYTICS,
   IS_DEV,
