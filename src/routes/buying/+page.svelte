@@ -24,11 +24,13 @@
 			const result = await response.json();
 			products = result.filtered_products;
 			
-			// Call OpenAI API with the parsed products
-			await getAIRecommendations(products);
+			// Set loading to false immediately after products are loaded
+			loading = false;
+			
+			// Call OpenAI API with the parsed products in the background
+			getAIRecommendations(products);
 		} catch (err) {
 			error = err.message;
-		} finally {
 			loading = false;
 		}
 	}
@@ -135,19 +137,44 @@
 
 				<!-- Products Section -->
 				<div class="products-section">
-					<h2>📦 Available Products</h2>
+					<h2>All Available Products</h2>
 					<div class="products">
 						{#each products as product}
 							<div class="product-card">
-								<h3>{product.product_title}</h3>
-								<p class="description">{product.product_description}</p>
-								<p class="store">Store: {product.store_name}</p>
-								<p class="price">Price: ${product.price}</p>
-								{#if product.offer_url}
-									<a href={product.offer_url} target="_blank" rel="noopener noreferrer" class="buy-button">
-										Buy Now
-									</a>
-								{/if}
+								<div class="product-image">
+									{#if product.product_photos && product.product_photos.length > 0}
+										<img 
+											src={product.product_photos[0]} 
+											alt={product.product_title}
+											on:error={(e) => {
+												e.target.style.display = 'none';
+											}}
+										/>
+									{:else}
+										<div class="no-image-placeholder">
+											<svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+												<path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V5H19V19ZM15 15V13.5C15 12.7 14.3 12 13.5 12C14.3 12 15 11.3 15 10.5V9C15 7.9 14.1 7 13 7H9V9H13V11H11V13H13V15H9V17H13C14.1 17 15 16.1 15 15Z" fill="rgba(255,255,255,0.3)"/>
+											</svg>
+										</div>
+									{/if}
+								</div>
+								<div class="product-content">
+									<div class="product-info">
+										<h3 class="product-title">{product.product_title}</h3>
+										<p class="description">
+											{product.product_description.length > 100 
+												? product.product_description.substring(0, 100) + '...' 
+												: product.product_description}
+										</p>
+										<p class="store">Store: {product.store_name}</p>
+										<p class="price">Price: ${product.price}</p>
+									</div>
+									{#if product.offer_url}
+										<a href={product.offer_url} target="_blank" rel="noopener noreferrer" class="buy-button">
+											Buy Now
+										</a>
+									{/if}
+								</div>
 							</div>
 						{/each}
 					</div>
@@ -375,7 +402,7 @@
 
 	.products {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
 		gap: 1.5rem;
 		margin: 2rem 0;
 	}
@@ -389,6 +416,11 @@
 		text-align: left;
 		transition: transform 0.3s ease, box-shadow 0.3s ease;
 		color: white;
+		display: flex;
+		align-items: flex-start;
+		gap: 1rem;
+		height: 200px; /* Fixed height for consistent card sizes */
+		overflow: hidden;
 	}
 
 	.product-card:hover {
@@ -397,47 +429,114 @@
 		background: rgba(255, 255, 255, 0.15);
 	}
 
-	.product-card h3 {
-		margin: 0 0 0.5rem 0;
+	.product-image {
+		flex-shrink: 0;
+		width: 120px;
+		height: 120px;
+		overflow: hidden;
+		border-radius: 12px;
+		background-color: rgba(255, 255, 255, 0.1);
+		border: 1px solid rgba(255, 255, 255, 0.2);
+	}
+
+	.product-image img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transition: transform 0.3s ease;
+	}
+
+	.product-image img:hover {
+		transform: scale(1.05);
+	}
+
+	.no-image-placeholder {
+		width: 100%;
+		height: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background-color: rgba(255, 255, 255, 0.05);
+		border: 1px dashed rgba(255, 255, 255, 0.2);
+	}
+
+	.product-content {
+		flex-grow: 1;
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+		justify-content: space-between;
+		min-width: 0; /* Allow content to shrink */
+	}
+
+	.product-info {
+		flex-grow: 1;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.product-title {
+		margin: 0;
 		color: white;
-		font-size: 1.25rem;
+		font-size: 1rem;
 		font-weight: 600;
+		line-height: 1.3;
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+		word-wrap: break-word;
 	}
 
 	.description {
 		color: rgba(255, 255, 255, 0.8);
-		margin: 0.5rem 0;
-		line-height: 1.5;
+		margin: 0;
+		line-height: 1.4;
+		font-size: 0.8rem;
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+		word-wrap: break-word;
 	}
 
 	.store {
 		color: rgba(255, 255, 255, 0.7);
-		font-size: 0.9rem;
-		margin: 0.5rem 0;
+		font-size: 0.8rem;
 		font-weight: 500;
+		margin: 0;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 	.price {
 		font-weight: 600;
 		color: #22c55e;
-		font-size: 1.1rem;
-		margin: 1rem 0;
+		font-size: 0.9rem;
+		margin: 0;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 	.buy-button {
 		background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
 		color: white;
 		border: none;
-		padding: 0.75rem 1.5rem;
+		padding: 0.6rem 1rem;
 		border-radius: 8px;
 		cursor: pointer;
 		font-weight: 600;
+		font-size: 0.9rem;
 		width: 100%;
 		transition: all 0.3s ease;
 		text-decoration: none;
 		display: inline-block;
 		text-align: center;
 		box-shadow: 0 4px 20px rgba(34, 197, 94, 0.3);
+		margin-top: auto;
 	}
 
 	.buy-button:hover {
@@ -472,6 +571,44 @@
 
 		.product-card {
 			padding: 1rem;
+			flex-direction: column;
+			align-items: center;
+			gap: 0.75rem;
+			height: auto;
+			min-height: 250px;
+		}
+
+		.product-image {
+			width: 100%;
+			height: 120px;
+		}
+
+		.product-content {
+			width: 100%;
+			height: auto;
+		}
+
+		.product-info {
+			gap: 0.4rem;
+		}
+
+		.product-title {
+			font-size: 0.95rem;
+			-webkit-line-clamp: 2;
+		}
+
+		.description {
+			font-size: 0.75rem;
+			-webkit-line-clamp: 2;
+		}
+
+		.store, .price {
+			font-size: 0.75rem;
+		}
+
+		.buy-button {
+			padding: 0.5rem 1rem;
+			font-size: 0.85rem;
 		}
 	}
 </style>
