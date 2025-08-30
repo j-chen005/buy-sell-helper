@@ -239,7 +239,7 @@
 												: product.product_description}
 										</p>
 										<p class="store">Store: {product.store_name}</p>
-										<p class="price">Price: ${product.price}</p>
+										<p class="price">Price: {product.price}</p>
 									</div>
 									{#if product.offer_url}
 										<a href={product.offer_url} target="_blank" rel="noopener noreferrer" class="buy-button">
