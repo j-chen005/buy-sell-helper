@@ -164,11 +164,11 @@
 				{#if aiLoading}
 					<div class="ai-loading">
 						<div class="loading-spinner"></div>
-						<p>🤖 Getting AI recommendations...</p>
+						<p>Getting AI recommendations...</p>
 					</div>
 				{:else if aiRecommendation}
 					<div class="ai-recommendations">
-						<h2>🤖 AI Top Recommendation</h2>
+						<h2>AI Top Recommendation</h2>
 						<div class="ai-rationale">
 							<p><strong>Why this product?</strong> {aiRationale}</p>
 						</div>
