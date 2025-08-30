@@ -12,7 +12,7 @@ return {
 	assets: new Set(["svelte.svg","vite.svg"]),
 	mimeTypes: {".svg":"image/svg+xml"},
 	_: {
-		client: {start:"_app/immutable/entry/start.BPV0BlQm.js",app:"_app/immutable/entry/app.D7Xu_L9j.js",imports:["_app/immutable/entry/start.BPV0BlQm.js","_app/immutable/chunks/Nf4Cgrso.js","_app/immutable/chunks/Dus5G4-p.js","_app/immutable/entry/app.D7Xu_L9j.js","_app/immutable/chunks/Dus5G4-p.js","_app/immutable/chunks/IHki7fMi.js"],stylesheets:[],fonts:[],uses_env_dynamic_public:false},
+		client: {start:"_app/immutable/entry/start.77jTM7og.js",app:"_app/immutable/entry/app.Dh9ip48c.js",imports:["_app/immutable/entry/start.77jTM7og.js","_app/immutable/chunks/CAuXGamI.js","_app/immutable/chunks/Dus5G4-p.js","_app/immutable/entry/app.Dh9ip48c.js","_app/immutable/chunks/Dus5G4-p.js","_app/immutable/chunks/IHki7fMi.js"],stylesheets:[],fonts:[],uses_env_dynamic_public:false},
 		nodes: [
 			__memo(() => import('../server/nodes/0.js')),
 			__memo(() => import('../server/nodes/1.js')),
