@@ -3,17 +3,21 @@ import OpenAI from 'openai';
 import type { RequestEvent } from '@sveltejs/kit';
 import { OPENAI_API_KEY } from '$lib/env.js';
 
-const BUY_PROMPT = `Given the dataset below, containing detailed product listings from various online stores, your task is to analyze the information to recommend the cheapest website I can buy the product at. The dataset includes information on product titles, descriptions, photos, attributes (like surface, material, size), product and offer URLs, store names, prices, and typical price ranges. Consider these details to:
+const BUY_PROMPT = `Given the dataset below, containing detailed product listings from various online stores, your task is to analyze the information and recommend the BEST product to buy based on value, price, and quality.
 
-Calculate the average buying price of similar products across all the listed stores.
-Identify the store that offers the lowest buying price for the product, considering both the prices and product attributes. 
-Provide a link to each of these product suggestions. EACH URL SHOULD BE A DIFFERENT LINK FOR THAT SPECIFIC PRODUCT, which is in the "offer_url" for that product in the list of products. The URL should have the store or website name in it. DO NOT PROVIDE A GOOGLE SHOPPING LINK.
+Analyze the products and select ONE product that offers the best overall value. Focus mostly on the price. The cheaper option is usually better, as long as the price is realistic for that product. Consider:
+- Price competitiveness
+- Product quality and features
+- Store reliability
+- Overall value proposition
 
-Do not provid a rationale for your suggestions. Do not provide suggestions from the same website. Only choose websites that have prices in a realistic price range for that product. For example, do not choose a website that is selling a car for 20 dollars.
-Present your analysis in the following format:
+Return your response in the following JSON format ONLY (no other text):
+{
+  "recommendedProductIndex": <index_of_the_recommended_product_in_the_array>,
+  "rationale": "<detailed_explanation_of_why_this_product_was_chosen_as_the_best_option>"
+}
 
--- Suggested Website for Buying: Website Name - <a href="OFFER_PAGE_URL_lowest_price">Suggested Buying Price</a>
--- Average Buying Prices at Other Stores: store1 - <a href="OFFER_PAGE_URL_for_store1">average_price1</a>, store2 - <a href="OFFER_PAGE_URL_for_store2">average_price2</a>
+The rationale should explain why this specific product is the best choice, considering price, quality, features, and overall value.
 
 Here's the dataset for analysis: {product_list}`;
 
@@ -35,7 +39,7 @@ export async function POST({ request }: RequestEvent) {
     const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
       {
         role: 'system' as const,
-        content: 'You are an expert e-commerce analyst specializing in finding the best deals and lowest prices for products across different online stores.'
+        content: 'You are an expert e-commerce analyst specializing in finding the best deals and highest value products. Always respond with valid JSON format only.'
       },
       {
         role: 'user' as const,
@@ -56,9 +60,30 @@ export async function POST({ request }: RequestEvent) {
       return json({ error: 'No response from OpenAI' }, { status: 500 });
     }
 
+    // Parse the JSON response
+    let parsedResponse;
+    try {
+      parsedResponse = JSON.parse(response);
+    } catch (parseError) {
+      console.error('Failed to parse AI response as JSON:', response);
+      return json({ error: 'Invalid AI response format' }, { status: 500 });
+    }
+
+    // Validate the response structure
+    if (!parsedResponse.recommendedProductIndex || !parsedResponse.rationale) {
+      return json({ error: 'Invalid AI response structure' }, { status: 500 });
+    }
+
+    // Get the recommended product
+    const recommendedProduct = productList[parsedResponse.recommendedProductIndex];
+    if (!recommendedProduct) {
+      return json({ error: 'Recommended product index out of range' }, { status: 500 });
+    }
+
     return json({ 
       success: true, 
-      response: response,
+      recommendedProduct: recommendedProduct,
+      rationale: parsedResponse.rationale,
       type: 'buy'
     });
 

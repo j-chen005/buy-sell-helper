@@ -2,7 +2,8 @@
 	import { onMount } from 'svelte';
 	
 	let products = [];
-	let aiRecommendations = null;
+	let aiRecommendation = null;
+	let aiRationale = null;
 	let loading = false;
 	let aiLoading = false;
 	let error = null;
@@ -11,7 +12,8 @@
 	async function fetchProducts(query = '') {
 		loading = true;
 		error = null;
-		aiRecommendations = null;
+		aiRecommendation = null;
+		aiRationale = null;
 		
 		try {
 			// Use the provided query or default to a sample search
@@ -51,7 +53,8 @@
 			}
 			
 			const result = await response.json();
-			aiRecommendations = result.response;
+			aiRecommendation = result.recommendedProduct;
+			aiRationale = result.rationale;
 		} catch (err) {
 			console.error('AI recommendation error:', err);
 			// Don't set error here as it's not critical for the main functionality
@@ -128,10 +131,48 @@
 						<div class="loading-spinner"></div>
 						<p>🤖 Getting AI recommendations...</p>
 					</div>
-				{:else if aiRecommendations}
+				{:else if aiRecommendation}
 					<div class="ai-recommendations">
-						<h2>🤖 AI Buying Recommendations</h2>
-						<div class="recommendations-content">{@html aiRecommendations}</div>
+						<h2>🤖 AI Top Recommendation</h2>
+						<div class="ai-rationale">
+							<p><strong>Why this product?</strong> {aiRationale}</p>
+						</div>
+						<div class="ai-recommended-product">
+							<div class="product-image-large">
+								{#if aiRecommendation.product_photos && aiRecommendation.product_photos.length > 0}
+									<img 
+										src={aiRecommendation.product_photos[0]} 
+										alt={aiRecommendation.product_title}
+										on:error={(e) => {
+											e.target.style.display = 'none';
+										}}
+									/>
+								{:else}
+									<div class="no-image-placeholder-large">
+										<svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+											<path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V5H19V19ZM15 15V13.5C15 12.7 14.3 12 13.5 12C14.3 12 15 11.3 15 10.5V9C15 7.9 14.1 7 13 7H9V9H13V11H11V13H13V15H9V17H13C14.1 17 15 16.1 15 15Z" fill="rgba(255,255,255,0.3)"/>
+										</svg>
+									</div>
+								{/if}
+							</div>
+							<div class="product-content-large">
+								<div class="product-info-large">
+									<h3 class="product-title-large">{aiRecommendation.product_title}</h3>
+									<p class="description-large">
+										{aiRecommendation.product_description.length > 150 
+											? aiRecommendation.product_description.substring(0, 150) + '...' 
+											: aiRecommendation.product_description}
+									</p>
+									<p class="store-large">Store: {aiRecommendation.store_name}</p>
+									<p class="price-large">Price: ${aiRecommendation.price}</p>
+								</div>
+								{#if aiRecommendation.offer_url}
+									<a href={aiRecommendation.offer_url} target="_blank" rel="noopener noreferrer" class="buy-button-large">
+										Buy Now
+									</a>
+								{/if}
+							</div>
+						</div>
 					</div>
 				{/if}
 
@@ -373,20 +414,151 @@
 		font-weight: 600;
 	}
 
-	.recommendations-content {
+	.ai-rationale {
+		background: rgba(255, 255, 255, 0.1);
+		border-radius: 12px;
+		padding: 1rem;
+		margin-bottom: 1.5rem;
+		border: 1px solid rgba(255, 255, 255, 0.2);
+	}
+
+	.ai-rationale p {
 		color: rgba(255, 255, 255, 0.9);
 		line-height: 1.6;
-		text-align: left;
+		margin: 0;
+		font-size: 0.95rem;
 	}
 
-	.recommendations-content a {
-		color: #22c55e;
-		text-decoration: none;
+	.ai-recommended-product {
+		background: rgba(255, 255, 255, 0.15);
+		border: 1px solid rgba(255, 255, 255, 0.3);
+		border-radius: 16px;
+		padding: 2rem;
+		display: flex;
+		gap: 2rem;
+		align-items: flex-start;
+		transition: transform 0.3s ease, box-shadow 0.3s ease;
+	}
+
+	.ai-recommended-product:hover {
+		transform: translateY(-4px);
+		box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+		background: rgba(255, 255, 255, 0.2);
+	}
+
+	.product-image-large {
+		flex-shrink: 0;
+		width: 200px;
+		height: 200px;
+		overflow: hidden;
+		border-radius: 16px;
+		background-color: rgba(255, 255, 255, 0.1);
+		border: 1px solid rgba(255, 255, 255, 0.2);
+	}
+
+	.product-image-large img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transition: transform 0.3s ease;
+	}
+
+	.product-image-large img:hover {
+		transform: scale(1.05);
+	}
+
+	.no-image-placeholder-large {
+		width: 100%;
+		height: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background-color: rgba(255, 255, 255, 0.05);
+		border: 1px dashed rgba(255, 255, 255, 0.2);
+	}
+
+	.product-content-large {
+		flex-grow: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		min-height: 200px;
+	}
+
+	.product-info-large {
+		flex-grow: 1;
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+
+	.product-title-large {
+		margin: 0;
+		color: white;
+		font-size: 1.4rem;
+		font-weight: 600;
+		line-height: 1.3;
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+		word-wrap: break-word;
+	}
+
+	.description-large {
+		color: rgba(255, 255, 255, 0.8);
+		margin: 0;
+		line-height: 1.5;
+		font-size: 1rem;
+		display: -webkit-box;
+		-webkit-line-clamp: 3;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+		word-wrap: break-word;
+	}
+
+	.store-large {
+		color: rgba(255, 255, 255, 0.7);
+		font-size: 1rem;
 		font-weight: 500;
+		margin: 0;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
-	.recommendations-content a:hover {
-		text-decoration: underline;
+	.price-large {
+		font-weight: 600;
+		color: #22c55e;
+		font-size: 1.2rem;
+		margin: 0;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.buy-button-large {
+		background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+		color: white;
+		border: none;
+		padding: 1rem 2rem;
+		border-radius: 12px;
+		cursor: pointer;
+		font-weight: 600;
+		font-size: 1.1rem;
+		width: 100%;
+		transition: all 0.3s ease;
+		text-decoration: none;
+		display: inline-block;
+		text-align: center;
+		box-shadow: 0 4px 20px rgba(34, 197, 94, 0.3);
+		margin-top: 1rem;
+	}
+
+	.buy-button-large:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 8px 30px rgba(34, 197, 94, 0.4);
+		background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
 	}
 
 	.products-section {
@@ -609,6 +781,43 @@
 		.buy-button {
 			padding: 0.5rem 1rem;
 			font-size: 0.85rem;
+		}
+
+		.ai-recommended-product {
+			flex-direction: column;
+			align-items: center;
+			gap: 1rem;
+			padding: 1.5rem;
+		}
+
+		.product-image-large {
+			width: 100%;
+			height: 150px;
+		}
+
+		.product-content-large {
+			min-height: auto;
+		}
+
+		.product-info-large {
+			gap: 0.75rem;
+		}
+
+		.product-title-large {
+			font-size: 1.2rem;
+		}
+
+		.description-large {
+			font-size: 0.9rem;
+		}
+
+		.store-large, .price-large {
+			font-size: 0.9rem;
+		}
+
+		.buy-button-large {
+			padding: 0.75rem 1.5rem;
+			font-size: 1rem;
 		}
 	}
 </style>
