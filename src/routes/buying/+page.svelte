@@ -26,6 +26,14 @@
 			const result = await response.json();
 			products = result.filtered_products;
 			
+			// Debug: Log the products received
+			console.log('Products received from API:', products.map((p, i) => ({
+				index: i,
+				title: p.product_title,
+				price: p.price,
+				store: p.store_name
+			})));
+			
 			// Set loading to false immediately after products are loaded
 			loading = false;
 			
@@ -53,6 +61,17 @@
 			}
 			
 			const result = await response.json();
+			
+			// Debug: Log the AI recommendation
+			console.log('AI Recommendation received:', {
+				recommendedProduct: {
+					title: result.recommendedProduct?.product_title,
+					price: result.recommendedProduct?.price,
+					store: result.recommendedProduct?.store_name
+				},
+				rationale: result.rationale
+			});
+			
 			aiRecommendation = result.recommendedProduct;
 			aiRationale = result.rationale;
 		} catch (err) {
@@ -101,7 +120,7 @@
 						type="text" 
 						bind:value={searchQuery}
 						on:keypress={handleKeyPress}
-						placeholder="Search for products (e.g., Nike shoes, iPhone, laptop...)"
+						placeholder="Search for products (e.g., Nike shoes, binders, Muji pens)"
 						class="search-input"
 						disabled={loading}
 					/>

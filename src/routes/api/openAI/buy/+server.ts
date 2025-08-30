@@ -11,13 +11,15 @@ Analyze the products and select ONE product that offers the best overall value. 
 - Store reliability
 - Overall value proposition
 
+IMPORTANT: You must select a product that is actually present in the provided dataset. The product you recommend MUST exist in the list below.
+
 Return your response in the following JSON format ONLY (no other text):
 {
   "recommendedProductIndex": <index_of_the_recommended_product_in_the_array>,
   "rationale": "<detailed_explanation_of_why_this_product_was_chosen_as_the_best_option>"
 }
 
-The rationale should explain why this specific product is the best choice, considering price, quality, features, and overall value.
+The rationale should explain why this specific product is the best choice, considering price, quality, features, and overall value. Make sure to mention the exact product name, price, and store in your rationale.
 
 Here's the dataset for analysis: {product_list}`;
 
@@ -39,7 +41,7 @@ export async function POST({ request }: RequestEvent) {
     const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
       {
         role: 'system' as const,
-        content: 'You are an expert e-commerce analyst specializing in finding the best deals and highest value products. Always respond with valid JSON format only.'
+        content: 'You are an expert e-commerce analyst specializing in finding the best deals and highest value products. You must ONLY select products from the provided dataset. Always respond with valid JSON format only. The recommendedProductIndex must be a valid index (0 to array length - 1) from the provided product list.'
       },
       {
         role: 'user' as const,
@@ -74,11 +76,35 @@ export async function POST({ request }: RequestEvent) {
       return json({ error: 'Invalid AI response structure' }, { status: 500 });
     }
 
-    // Get the recommended product
-    const recommendedProduct = productList[parsedResponse.recommendedProductIndex];
-    if (!recommendedProduct) {
-      return json({ error: 'Recommended product index out of range' }, { status: 500 });
+    // Validate that the index is within range
+    const index = parseInt(parsedResponse.recommendedProductIndex);
+    if (isNaN(index) || index < 0 || index >= productList.length) {
+      console.error('Invalid AI recommendation index:', {
+        providedIndex: parsedResponse.recommendedProductIndex,
+        parsedIndex: index,
+        productListLength: productList.length,
+        validRange: `0 to ${productList.length - 1}`
+      });
+      return json({ error: 'AI recommended product index out of range' }, { status: 500 });
     }
+
+    // Get the recommended product
+    const recommendedProduct = productList[index];
+    if (!recommendedProduct) {
+      return json({ error: 'Recommended product not found' }, { status: 500 });
+    }
+
+    // Add debugging information
+    console.log('AI Recommendation Debug:', {
+      totalProducts: productList.length,
+      selectedIndex: index,
+      selectedProduct: {
+        title: recommendedProduct.product_title,
+        price: recommendedProduct.price,
+        store: recommendedProduct.store_name
+      },
+      rationale: parsedResponse.rationale
+    });
 
     return json({ 
       success: true, 
