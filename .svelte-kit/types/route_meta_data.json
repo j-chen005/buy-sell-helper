@@ -9,5 +9,6 @@
 	"/api/rapidApi": [
 		"src/routes/api/rapidApi/+server.ts"
 	],
-	"/buying": []
+	"/buying": [],
+	"/selling": []
 }
