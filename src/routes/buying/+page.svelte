@@ -1,12 +1,21 @@
-<script>
+<script lang="ts">
 	import { onMount } from 'svelte';
 	
-	let products = [];
-	let aiRecommendation = null;
-	let aiRationale = null;
+	interface Product {
+		product_title: string;
+		product_description: string;
+		product_photos?: string[];
+		store_name: string;
+		price: number;
+		offer_url?: string;
+	}
+	
+	let products: Product[] = [];
+	let aiRecommendation: Product | null = null;
+	let aiRationale: string | null = null;
 	let loading = false;
 	let aiLoading = false;
-	let error = null;
+	let error: string | null = null;
 	let searchQuery = '';
 
 	async function fetchProducts(query = '') {
@@ -27,7 +36,7 @@
 			products = result.filtered_products;
 			
 			// Debug: Log the products received
-			console.log('Products received from API:', products.map((p, i) => ({
+			console.log('Products received from API:', products.map((p: Product, i: number) => ({
 				index: i,
 				title: p.product_title,
 				price: p.price,
@@ -39,13 +48,13 @@
 			
 			// Call OpenAI API with the parsed products in the background
 			getAIRecommendations(products);
-		} catch (err) {
-			error = err.message;
+		} catch (err: unknown) {
+			error = err instanceof Error ? err.message : 'An unknown error occurred';
 			loading = false;
 		}
 	}
 
-	async function getAIRecommendations(productList) {
+	async function getAIRecommendations(productList: Product[]) {
 		aiLoading = true;
 		try {
 			const response = await fetch('/api/openAI/buy', {
@@ -88,9 +97,16 @@
 		}
 	}
 
-	function handleKeyPress(event) {
+	function handleKeyPress(event: KeyboardEvent) {
 		if (event.key === 'Enter') {
 			handleSearch();
+		}
+	}
+
+	function handleImageError(event: Event) {
+		const target = event.target as HTMLImageElement;
+		if (target) {
+			target.style.display = 'none';
 		}
 	}
     
@@ -162,9 +178,7 @@
 									<img 
 										src={aiRecommendation.product_photos[0]} 
 										alt={aiRecommendation.product_title}
-										on:error={(e) => {
-											e.target.style.display = 'none';
-										}}
+										on:error={handleImageError}
 									/>
 								{:else}
 									<div class="no-image-placeholder-large">
@@ -206,9 +220,7 @@
 										<img 
 											src={product.product_photos[0]} 
 											alt={product.product_title}
-											on:error={(e) => {
-												e.target.style.display = 'none';
-											}}
+											on:error={handleImageError}
 										/>
 									{:else}
 										<div class="no-image-placeholder">

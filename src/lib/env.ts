@@ -25,9 +25,9 @@ export function validateEnv() {
     'RAPID_API_HOST',
     'RAPID_API_KEY',
     'OPENAI_API_KEY'
-  ];
+  ] as const;
   
-  const missing = required.filter(key => !env[key]);
+  const missing = required.filter(key => !env[key as keyof typeof env]);
   
   if (missing.length > 0) {
     console.warn('Missing required environment variables:', missing);

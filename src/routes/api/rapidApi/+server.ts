@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { RAPID_API_KEY, RAPID_API_HOST } from '../../../lib/env.js';
+import { RAPID_API_KEY, RAPID_API_HOST } from '../../../lib/env';
 
 // TypeScript interfaces
 interface SearchOptions {
