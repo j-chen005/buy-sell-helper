@@ -7,7 +7,7 @@ export const env = {
   // API Configuration
   RAPID_API_HOST: import.meta.env.VITE_RAPID_API_HOST || '',
   RAPID_API_KEY: import.meta.env.VITE_RAPID_API_KEY || '',
-  OPENAI_API_KEY: import.meta.env.VITE_OPENAI_KEY || '',
+  OPENAI_API_KEY: import.meta.env.VITE_OPEN_AI_KEY || '',
   
   // Feature Flags
   ENABLE_DEBUG_MODE: import.meta.env.VITE_ENABLE_DEBUG_MODE === 'true',

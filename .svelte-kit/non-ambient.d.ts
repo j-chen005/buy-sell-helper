@@ -27,17 +27,20 @@ export {};
 
 declare module "$app/types" {
 	export interface AppTypes {
-		RouteId(): "/" | "/api" | "/api/rapidApi" | "/buying";
+		RouteId(): "/" | "/api" | "/api/openAI" | "/api/openAI/buy" | "/api/openAI/sell" | "/api/rapidApi" | "/buying";
 		RouteParams(): {
 			
 		};
 		LayoutParams(): {
 			"/": Record<string, never>;
 			"/api": Record<string, never>;
+			"/api/openAI": Record<string, never>;
+			"/api/openAI/buy": Record<string, never>;
+			"/api/openAI/sell": Record<string, never>;
 			"/api/rapidApi": Record<string, never>;
 			"/buying": Record<string, never>
 		};
-		Pathname(): "/" | "/api" | "/api/" | "/api/rapidApi" | "/api/rapidApi/" | "/buying" | "/buying/";
+		Pathname(): "/" | "/api" | "/api/" | "/api/openAI" | "/api/openAI/" | "/api/openAI/buy" | "/api/openAI/buy/" | "/api/openAI/sell" | "/api/openAI/sell/" | "/api/rapidApi" | "/api/rapidApi/" | "/buying" | "/buying/";
 		ResolvedPathname(): `${"" | `/${string}`}${ReturnType<AppTypes['Pathname']>}`;
 		Asset(): "/svelte.svg" | "/vite.svg" | string & {};
 	}

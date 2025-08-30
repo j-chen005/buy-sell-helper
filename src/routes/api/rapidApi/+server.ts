@@ -16,14 +16,11 @@ interface Product {
     product_title: string;
     product_description: string;
     product_photos: string[];
-    prices: {
-        current_price: number;
-        original_price?: number;
-        typical_price_range?: string;
-        on_sale?: boolean;
-        percent_off?: number;
-    };
-    offer_page_url?: string;
+    product_attributes: any;
+    store_name: string;
+    offer_url: string;
+    price: string;
+    typical_price_range: any[];
 }
 
 interface SearchResponse {
@@ -87,25 +84,25 @@ async function searchProducts(query: string, options: SearchOptions = {}): Promi
         const data = await response.json();
 
         if (data.status === "OK" && data.data && data.data.products) {
-            const filteredProducts: Product[] = data.data.products.map((product: any) => {
-                return {
-                    product_title: product.product_title,
-                    product_description: product.product_description,
-                    product_photos: product.product_photos,
-                    prices: {
-                        current_price: product.offer?.price,
-                        original_price: product.offer?.original_price,
-                        typical_price_range: product.typical_price_range,
-                        on_sale: product.offer?.on_sale,
-                        percent_off: product.offer?.percent_off
-                    },
-                    offer_page_url: product.offer?.offer_page_url
+            // Parse the response according to the specified format
+            const new_data = [];
+            for (const product of data.data.products) {
+                const new_product = {
+                    "product_title": product.product_title || "",
+                    "product_description": product.product_description || "",
+                    "product_photos": product.product_photos || [],
+                    "product_attributes": product.product_attributes || {},
+                    "store_name": product.offer?.store_name || "",
+                    "offer_url": product.offer?.offer_page_url || "",
+                    "price": product.offer?.price || "",
+                    "typical_price_range": product.typical_price_range || []
                 };
-            });
+                new_data.push(new_product);
+            }
 
             return {
                 status: data.status,
-                filtered_products: filteredProducts,
+                filtered_products: new_data,
                 total_results: data.data.total_results || 0
             };
         } else {

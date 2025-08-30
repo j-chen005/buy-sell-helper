@@ -28,6 +28,7 @@
 declare module '$env/static/private' {
 	export const VITE_RAPID_API_KEY: string;
 	export const VITE_RAPID_API_HOST: string;
+	export const VITE_OPEN_AI_KEY: string;
 	export const TERM_PROGRAM: string;
 	export const NODE: string;
 	export const INIT_CWD: string;
@@ -125,6 +126,7 @@ declare module '$env/dynamic/private' {
 	export const env: {
 		VITE_RAPID_API_KEY: string;
 		VITE_RAPID_API_HOST: string;
+		VITE_OPEN_AI_KEY: string;
 		TERM_PROGRAM: string;
 		NODE: string;
 		INIT_CWD: string;

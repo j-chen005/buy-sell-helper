@@ -1,5 +1,11 @@
 {
 	"/": [],
+	"/api/openAI/buy": [
+		"src/routes/api/openAI/buy/+server.ts"
+	],
+	"/api/openAI/sell": [
+		"src/routes/api/openAI/sell/+server.ts"
+	],
 	"/api/rapidApi": [
 		"src/routes/api/rapidApi/+server.ts"
 	],

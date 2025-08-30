@@ -2,24 +2,71 @@
 	import { onMount } from 'svelte';
 	
 	let products = [];
+	let aiRecommendations = null;
 	let loading = false;
+	let aiLoading = false;
 	let error = null;
+	let searchQuery = '';
 
-	async function fetchProducts() {
+	async function fetchProducts(query = '') {
 		loading = true;
 		error = null;
+		aiRecommendations = null;
 		
 		try {
-			const response = await fetch('/api/rapidApi?q=Nike%20shoes');
+			// Use the provided query or default to a sample search
+			const searchTerm = query || 'Nike shoes';
+			const encodedQuery = encodeURIComponent(searchTerm);
+			const response = await fetch(`/api/rapidApi?q=${encodedQuery}`);
 			if (!response.ok) {
 				throw new Error(`HTTP error! status: ${response.status}`);
 			}
 			const result = await response.json();
 			products = result.filtered_products;
+			
+			// Call OpenAI API with the parsed products
+			await getAIRecommendations(products);
 		} catch (err) {
 			error = err.message;
 		} finally {
 			loading = false;
+		}
+	}
+
+	async function getAIRecommendations(productList) {
+		aiLoading = true;
+		try {
+			const response = await fetch('/api/openAI/buy', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ productList })
+			});
+			
+			if (!response.ok) {
+				throw new Error(`HTTP error! status: ${response.status}`);
+			}
+			
+			const result = await response.json();
+			aiRecommendations = result.response;
+		} catch (err) {
+			console.error('AI recommendation error:', err);
+			// Don't set error here as it's not critical for the main functionality
+		} finally {
+			aiLoading = false;
+		}
+	}
+
+	function handleSearch() {
+		if (searchQuery.trim()) {
+			fetchProducts(searchQuery.trim());
+		}
+	}
+
+	function handleKeyPress(event) {
+		if (event.key === 'Enter') {
+			handleSearch();
 		}
 	}
     
@@ -37,9 +84,29 @@
 		</header>
 
 		<div class="content">
+			<div class="search-section">
+				<div class="search-container">
+					<input 
+						type="text" 
+						bind:value={searchQuery}
+						on:keypress={handleKeyPress}
+						placeholder="Search for products (e.g., Nike shoes, iPhone, laptop...)"
+						class="search-input"
+						disabled={loading}
+					/>
+					<button 
+						on:click={handleSearch} 
+						disabled={loading || !searchQuery.trim()} 
+						class="search-button"
+					>
+						{loading ? 'Searching...' : 'Search'}
+					</button>
+				</div>
+			</div>
+
 			<div class="api-section">
-				<button on:click={fetchProducts} disabled={loading} class="fetch-button">
-					{loading ? 'Loading...' : 'Refresh Products'}
+				<button on:click={() => fetchProducts()} disabled={loading} class="fetch-button">
+					{loading ? 'Loading...' : 'Load Sample Products'}
 				</button>
 			</div>
 
@@ -52,19 +119,40 @@
 					<p>Error: {error}</p>
 				</div>
 			{:else if products.length > 0}
-				<div class="products">
-					{#each products as product}
-						<div class="product-card">
-							<h3>{product.product_title}</h3>
-							<p class="description">{product.product_description}</p>
-							<p class="price">Price: ${product.prices.current_price}</p>
-							<button class="buy-button">Buy Now</button>
-						</div>
-					{/each}
+				<!-- AI Recommendations Section -->
+				{#if aiLoading}
+					<div class="ai-loading">
+						<p>🤖 Getting AI recommendations...</p>
+					</div>
+				{:else if aiRecommendations}
+					<div class="ai-recommendations">
+						<h2>🤖 AI Buying Recommendations</h2>
+						<div class="recommendations-content">{@html aiRecommendations}</div>
+					</div>
+				{/if}
+
+				<!-- Products Section -->
+				<div class="products-section">
+					<h2>📦 Available Products</h2>
+					<div class="products">
+						{#each products as product}
+							<div class="product-card">
+								<h3>{product.product_title}</h3>
+								<p class="description">{product.product_description}</p>
+								<p class="store">Store: {product.store_name}</p>
+								<p class="price">Price: ${product.price}</p>
+								{#if product.offer_url}
+									<a href={product.offer_url} target="_blank" rel="noopener noreferrer" class="buy-button">
+										Buy Now
+									</a>
+								{/if}
+							</div>
+						{/each}
+					</div>
 				</div>
 			{:else}
 				<div class="no-products">
-					<p>No products available. Click "Refresh Products" to load some items.</p>
+					<p>No products available. Click "Load Sample Products" to load some items.</p>
 				</div>
 			{/if}
 		</div>
@@ -108,6 +196,52 @@
 		text-align: center;
 	}
 
+	.search-section {
+		margin-bottom: 2rem;
+	}
+
+	.search-container {
+		display: flex;
+		gap: 0.5rem;
+		max-width: 600px;
+		margin: 0 auto 2rem;
+	}
+
+	.search-input {
+		flex-grow: 1;
+		padding: 0.75rem 1rem;
+		border: 1px solid #d1d5db;
+		border-radius: 8px;
+		font-size: 1rem;
+		outline: none;
+		transition: border-color 0.2s;
+	}
+
+	.search-input:focus {
+		border-color: #646cff;
+	}
+
+	.search-button {
+		background: #646cff;
+		color: white;
+		border: none;
+		padding: 0.75rem 1.5rem;
+		border-radius: 8px;
+		cursor: pointer;
+		font-size: 1rem;
+		font-weight: 500;
+		transition: background-color 0.2s;
+	}
+
+	.search-button:hover:not(:disabled) {
+		background: #535bf2;
+	}
+
+	.search-button:disabled {
+		background: #ccc;
+		cursor: not-allowed;
+	}
+
 	.api-section {
 		margin: 2rem 0;
 	}
@@ -133,7 +267,7 @@
 		cursor: not-allowed;
 	}
 
-	.loading, .error, .no-products {
+	.loading, .error, .no-products, .ai-loading {
 		padding: 2rem;
 		border-radius: 8px;
 		margin: 2rem 0;
@@ -152,6 +286,51 @@
 	.no-products {
 		background: #f9fafb;
 		color: #6b7280;
+	}
+
+	.ai-loading {
+		background: #f0f9ff;
+		color: #0369a1;
+		font-weight: 500;
+	}
+
+	.ai-recommendations {
+		background: #f0fdf4;
+		border: 2px solid #22c55e;
+		border-radius: 12px;
+		padding: 2rem;
+		margin: 2rem 0;
+	}
+
+	.ai-recommendations h2 {
+		color: #15803d;
+		margin: 0 0 1rem 0;
+		font-size: 1.5rem;
+	}
+
+	.recommendations-content {
+		color: #166534;
+		line-height: 1.6;
+	}
+
+	.recommendations-content a {
+		color: #059669;
+		text-decoration: none;
+		font-weight: 500;
+	}
+
+	.recommendations-content a:hover {
+		text-decoration: underline;
+	}
+
+	.products-section {
+		margin: 2rem 0;
+	}
+
+	.products-section h2 {
+		color: #1f2937;
+		margin: 0 0 1.5rem 0;
+		font-size: 1.5rem;
 	}
 
 	.products {
@@ -186,6 +365,13 @@
 		color: #6b7280;
 		margin: 0.5rem 0;
 		line-height: 1.5;
+	}
+
+	.store {
+		color: #374151;
+		font-size: 0.9rem;
+		margin: 0.5rem 0;
+		font-weight: 500;
 	}
 
 	.price {
