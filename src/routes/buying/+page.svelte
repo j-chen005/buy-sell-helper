@@ -193,7 +193,7 @@
 											: aiRecommendation.product_description}
 									</p>
 									<p class="store-large">Store: {aiRecommendation.store_name}</p>
-									<p class="price-large">Price: ${aiRecommendation.price}</p>
+									<p class="price-large">Price: {aiRecommendation.price}</p>
 								</div>
 								{#if aiRecommendation.offer_url}
 									<ActionButton variant="buy" size="large" href={aiRecommendation.offer_url}>
