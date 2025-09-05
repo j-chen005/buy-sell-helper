@@ -1,11 +1,19 @@
 <script>
 	import { goto } from '$app/navigation';
+	import { fade, fly, scale } from 'svelte/transition';
+	import { onMount } from 'svelte';
 	import CTAButton from '$lib/CTAButton.svelte';
+	
+	let mounted = false;
+	
+	onMount(() => {
+		mounted = true;
+	});
 	
 	function goToBuying() {
 		goto('/buying');
 	}
-	
+
 	function goToSelling() {
 		goto('/selling');
 	}
@@ -14,50 +22,58 @@
 <main>
 	<div class="hero-section">
 		<div class="container">
-			<div class="logo-container">
-				<div class="logo">
-					<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<rect width="48" height="48" rx="12" fill="#3B82F6"/>
-						<path d="M12 20L24 12L36 20V36H12V20Z" fill="white"/>
-						<path d="M16 24L24 18L32 24V32H16V24Z" fill="#3B82F6"/>
-						<circle cx="24" cy="26" r="2" fill="white"/>
-					</svg>
+			{#if mounted}
+				<div class="logo-container" in:fly={{ y: -30, duration: 800, delay: 200 }}>
+					<div class="logo" in:scale={{ duration: 600, delay: 400 }}>
+						<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<rect width="48" height="48" rx="12" fill="#3B82F6"/>
+							<path d="M12 20L24 12L36 20V36H12V20Z" fill="white"/>
+							<path d="M16 24L24 18L32 24V32H16V24Z" fill="#3B82F6"/>
+							<circle cx="24" cy="26" r="2" fill="white"/>
+						</svg>
+					</div>
+					<h1 class="title" in:fly={{ x: 30, duration: 800, delay: 600 }}>Market Aide</h1>
 				</div>
-				<h1 class="title">Market Aide</h1>
-			</div>
+			{/if}
 			
-			<p class="tagline">
-				Your intelligent companion for smarter buying and selling decisions
-			</p>
+			{#if mounted}
+				<p class="tagline" in:fade={{ duration: 800, delay: 800 }}>
+					Your intelligent companion for smarter buying and selling decisions
+				</p>
+			{/if}
 			
-			<div class="features">
-				<div class="feature">
-					<div class="feature-icon">📊</div>
-					<h3>Market Analysis</h3>
-					<p>Get real-time insights and trends</p>
+			{#if mounted}
+				<div class="features">
+					<div class="feature" in:fly={{ y: 40, duration: 600, delay: 1200 }}>
+						<div class="feature-icon">📊</div>
+						<h3>Market Analysis</h3>
+						<p>Get real-time insights and trends</p>
+					</div>
+					<div class="feature" in:fly={{ y: 40, duration: 600, delay: 1400 }}>
+						<div class="feature-icon">🤖</div>
+						<h3>AI-Powered</h3>
+						<p>Advanced recommendations</p>
+					</div>
+					<div class="feature" in:fly={{ y: 40, duration: 600, delay: 1600 }}>
+						<div class="feature-icon">⚡</div>
+						<h3>Instant Results</h3>
+						<p>Quick and accurate guidance</p>
+					</div>
 				</div>
-				<div class="feature">
-					<div class="feature-icon">🤖</div>
-					<h3>AI-Powered</h3>
-					<p>Advanced recommendations</p>
-				</div>
-				<div class="feature">
-					<div class="feature-icon">⚡</div>
-					<h3>Instant Results</h3>
-					<p>Quick and accurate guidance</p>
-				</div>
-			</div>
+			{/if}
 
-			<div class="cta-section">
-				<div class="cta-buttons">
-					<CTAButton variant="buying" onClick={goToBuying}>
-						Smart Buying
-					</CTAButton>
-					<CTAButton variant="selling" onClick={goToSelling}>
-						Smart Selling
-					</CTAButton>
+			{#if mounted}
+				<div class="cta-section" in:scale={{ duration: 600, delay: 1800 }}>
+					<div class="cta-buttons">
+						<CTAButton variant="buying" onClick={goToBuying}>
+							Smart Buying
+						</CTAButton>
+						<CTAButton variant="selling" onClick={goToSelling}>
+							Smart Selling
+						</CTAButton>
+					</div>
 				</div>
-			</div>
+			{/if}
 		</div>
 	</div>
 </main>
