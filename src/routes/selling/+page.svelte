@@ -1,5 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import BackLink from '$lib/BackLink.svelte';
+	import SearchButton from '$lib/SearchButton.svelte';
+	import ActionButton from '$lib/ActionButton.svelte';
 	
 	interface Product {
 		product_title: string;
@@ -165,12 +168,7 @@
 <main>
 	<div class="container">
 		<header class="header">
-			<a href="/" class="back-link">
-				<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-					<path d="M15 10H5M5 10L10 5M5 10L10 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-				</svg>
-				Back to Home
-			</a>
+			<BackLink />
 			<h1>Market Aide</h1>
 			<p class="subtitle">Smart Selling Decisions</p>
 		</header>
@@ -186,13 +184,11 @@
 						class="search-input"
 						disabled={loading}
 					/>
-					<button 
-						on:click={handleSearch} 
-						disabled={loading || !searchQuery.trim()} 
-						class="search-button"
-					>
-						{loading ? 'Searching...' : 'Search'}
-					</button>
+					<SearchButton 
+						onClick={handleSearch} 
+						disabled={loading || !searchQuery.trim()}
+						loading={loading}
+					/>
 				</div>
 			</div>
 
@@ -229,9 +225,9 @@
 							<div class="description-header">
 								<h3>Product Description</h3>
 								{#if !productDescription && !descriptionLoading}
-									<button on:click={getProductDescription} class="generate-btn">
+									<ActionButton variant="generate" size="small" onClick={getProductDescription}>
 										Generate Description
-									</button>
+									</ActionButton>
 								{/if}
 							</div>
 							
@@ -286,9 +282,9 @@
 										<p class="price">Price: {product.price}</p>
 									</div>
 									{#if product.offer_url}
-										<a href={product.offer_url} target="_blank" rel="noopener noreferrer" class="view-button">
+										<ActionButton variant="view" size="medium" href={product.offer_url}>
 											View Product
-										</a>
+										</ActionButton>
 									{/if}
 								</div>
 							</div>
@@ -327,24 +323,6 @@
 		color: white;
 	}
 
-	.back-link {
-		position: absolute;
-		left: 0;
-		top: 50%;
-		transform: translateY(-50%);
-		color: white;
-		text-decoration: none;
-		font-weight: 500;
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		opacity: 0.9;
-		transition: opacity 0.2s ease;
-	}
-
-	.back-link:hover {
-		opacity: 1;
-	}
 
 	h1 {
 		font-size: 2.5rem;
@@ -403,31 +381,6 @@
 		box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
 	}
 
-	.search-button {
-		background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
-		color: white;
-		border: none;
-		padding: 1rem 2rem;
-		border-radius: 12px;
-		cursor: pointer;
-		font-size: 1rem;
-		font-weight: 600;
-		transition: all 0.3s ease;
-		box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
-	}
-
-	.search-button:hover:not(:disabled) {
-		transform: translateY(-2px);
-		box-shadow: 0 8px 30px rgba(59, 130, 246, 0.4);
-		background: linear-gradient(135deg, #2563EB 0%, #1E40AF 100%);
-	}
-
-	.search-button:disabled {
-		background: rgba(255, 255, 255, 0.2);
-		cursor: not-allowed;
-		transform: none;
-		box-shadow: none;
-	}
 
 	.loading, .error, .no-products, .ai-loading {
 		padding: 2rem;
@@ -696,48 +649,7 @@
 		text-overflow: ellipsis;
 	}
 
-	.view-button {
-		background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-		color: white;
-		border: none;
-		padding: 0.6rem 1rem;
-		border-radius: 8px;
-		cursor: pointer;
-		font-weight: 600;
-		font-size: 0.9rem;
-		width: 100%;
-		transition: all 0.3s ease;
-		text-decoration: none;
-		display: inline-block;
-		text-align: center;
-		box-shadow: 0 4px 20px rgba(34, 197, 94, 0.3);
-		margin-top: auto;
-	}
 
-	.view-button:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 8px 30px rgba(34, 197, 94, 0.4);
-		background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
-	}
-
-	.generate-btn {
-		background: linear-gradient(135deg, #4F46E5 0%, #4338CA 100%);
-		color: white;
-		border: none;
-		padding: 0.6rem 1.2rem;
-		border-radius: 8px;
-		cursor: pointer;
-		font-weight: 600;
-		font-size: 0.9rem;
-		transition: all 0.3s ease;
-		box-shadow: 0 4px 20px rgba(79, 70, 229, 0.3);
-	}
-
-	.generate-btn:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 8px 30px rgba(79, 70, 229, 0.4);
-		background: linear-gradient(135deg, #4338CA 0%, #3730A3 100%);
-	}
 
 	.description-section {
 		background: rgba(255, 255, 255, 0.1);
@@ -797,12 +709,6 @@
 			font-size: 2rem;
 		}
 
-		.back-link {
-			position: static;
-			transform: none;
-			justify-content: center;
-			margin-bottom: 1rem;
-		}
 
 		.search-container {
 			flex-direction: column;
@@ -865,15 +771,6 @@
 			font-size: 0.75rem;
 		}
 
-		.view-button {
-			padding: 0.5rem 1rem;
-			font-size: 0.85rem;
-		}
-
-		.generate-btn {
-			padding: 0.5rem 1rem;
-			font-size: 0.85rem;
-		}
 
 		.description-section {
 			padding: 1rem;

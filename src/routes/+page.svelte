@@ -1,5 +1,6 @@
 <script>
 	import { goto } from '$app/navigation';
+	import CTAButton from '$lib/CTAButton.svelte';
 	
 	function goToBuying() {
 		goto('/buying');
@@ -49,18 +50,12 @@
 
 			<div class="cta-section">
 				<div class="cta-buttons">
-					<button on:click={goToBuying} class="cta-button buying">
-						<span>Smart Buying</span>
-						<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-							<path d="M4 10H16M16 10L11 5M16 10L11 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-						</svg>
-					</button>
-					<button on:click={goToSelling} class="cta-button selling">
-						<span>Smart Selling</span>
-						<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-							<path d="M4 10H16M16 10L11 5M16 10L11 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-						</svg>
-					</button>
+					<CTAButton variant="buying" onClick={goToBuying}>
+						Smart Buying
+					</CTAButton>
+					<CTAButton variant="selling" onClick={goToSelling}>
+						Smart Selling
+					</CTAButton>
 				</div>
 			</div>
 		</div>
@@ -178,48 +173,6 @@
 		flex-wrap: wrap;
 	}
 
-	.cta-button {
-		color: white;
-		border: none;
-		padding: 1rem 2rem;
-		border-radius: 12px;
-		cursor: pointer;
-		font-size: 1.1rem;
-		font-weight: 600;
-		transition: all 0.3s ease;
-		display: inline-flex;
-		align-items: center;
-		gap: 0.5rem;
-		min-width: 160px;
-		justify-content: center;
-	}
-
-	.cta-button.buying {
-		background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
-		box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
-	}
-
-	.cta-button.buying:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 8px 30px rgba(59, 130, 246, 0.4);
-		background: linear-gradient(135deg, #2563EB 0%, #1E40AF 100%);
-	}
-
-	.cta-button.selling {
-		background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-		box-shadow: 0 4px 20px rgba(34, 197, 94, 0.3);
-	}
-
-	.cta-button.selling:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 8px 30px rgba(34, 197, 94, 0.4);
-		background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
-	}
-
-	.cta-button:active {
-		transform: translateY(0);
-	}
-
 	@media (max-width: 768px) {
 		.title {
 			font-size: 2.5rem;
@@ -241,11 +194,6 @@
 		.cta-buttons {
 			flex-direction: column;
 			align-items: center;
-		}
-		
-		.cta-button {
-			width: 100%;
-			max-width: 280px;
 		}
 	}
 </style>
