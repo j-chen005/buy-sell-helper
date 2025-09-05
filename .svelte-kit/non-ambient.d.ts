@@ -44,6 +44,6 @@ declare module "$app/types" {
 		};
 		Pathname(): "/" | "/api" | "/api/" | "/api/openAI" | "/api/openAI/" | "/api/openAI/buy" | "/api/openAI/buy/" | "/api/openAI/image-describe" | "/api/openAI/image-describe/" | "/api/openAI/sell" | "/api/openAI/sell/" | "/api/rapidApi" | "/api/rapidApi/" | "/buying" | "/buying/" | "/selling" | "/selling/";
 		ResolvedPathname(): `${"" | `/${string}`}${ReturnType<AppTypes['Pathname']>}`;
-		Asset(): "/svelte.svg" | "/vite.svg" | string & {};
+		Asset(): "/vite.svg" | string & {};
 	}
 }
