@@ -27,7 +27,7 @@ export {};
 
 declare module "$app/types" {
 	export interface AppTypes {
-		RouteId(): "/" | "/api" | "/api/openAI" | "/api/openAI/buy" | "/api/openAI/sell" | "/api/rapidApi" | "/buying" | "/selling";
+		RouteId(): "/" | "/api" | "/api/openAI" | "/api/openAI/buy" | "/api/openAI/image-describe" | "/api/openAI/sell" | "/api/rapidApi" | "/buying" | "/selling";
 		RouteParams(): {
 			
 		};
@@ -36,12 +36,13 @@ declare module "$app/types" {
 			"/api": Record<string, never>;
 			"/api/openAI": Record<string, never>;
 			"/api/openAI/buy": Record<string, never>;
+			"/api/openAI/image-describe": Record<string, never>;
 			"/api/openAI/sell": Record<string, never>;
 			"/api/rapidApi": Record<string, never>;
 			"/buying": Record<string, never>;
 			"/selling": Record<string, never>
 		};
-		Pathname(): "/" | "/api" | "/api/" | "/api/openAI" | "/api/openAI/" | "/api/openAI/buy" | "/api/openAI/buy/" | "/api/openAI/sell" | "/api/openAI/sell/" | "/api/rapidApi" | "/api/rapidApi/" | "/buying" | "/buying/" | "/selling" | "/selling/";
+		Pathname(): "/" | "/api" | "/api/" | "/api/openAI" | "/api/openAI/" | "/api/openAI/buy" | "/api/openAI/buy/" | "/api/openAI/image-describe" | "/api/openAI/image-describe/" | "/api/openAI/sell" | "/api/openAI/sell/" | "/api/rapidApi" | "/api/rapidApi/" | "/buying" | "/buying/" | "/selling" | "/selling/";
 		ResolvedPathname(): `${"" | `/${string}`}${ReturnType<AppTypes['Pathname']>}`;
 		Asset(): "/svelte.svg" | "/vite.svg" | string & {};
 	}

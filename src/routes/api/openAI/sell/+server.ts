@@ -3,14 +3,27 @@ import OpenAI from 'openai';
 import type { RequestEvent } from '@sveltejs/kit';
 import { OPENAI_API_KEY } from '$lib/env';
 
-const VISION_PROMPT = `Analyze the product dataset and provide ONLY the best selling platform recommendation and 2 other options. Keep it brief and direct.
+const VISION_PROMPT = `Analyze the product dataset to determine the market value and recommend the best selling platforms for this type of product. Based on the product data, suggest realistic selling platforms where users can actually sell their items (NOT retail stores).
+
+Recommend platforms like:
+- Facebook Marketplace (good for local sales)
+- eBay (good for auctions and wide reach)
+- Mercari (good for quick sales)
+- Poshmark (good for fashion items)
+- Depop (good for trendy/vintage items)
+- OfferUp (good for local sales)
+- Vinted (good for clothing)
+
+Provide a suggested selling price based on the market data, typically 10-30% below retail prices depending on condition.
 
 Format your response exactly like this:
 
-**Best Platform:** [Website Name] - $[Price]
+**Best Platform:** [Platform Name] - $[Suggested Price]
 **Other Platforms:**
-- [Store1]: $[Price1]
-- [Store2]: $[Price2]
+- [Platform2]: $[Price2]
+- [Platform3]: $[Price3]
+
+Make sure all three platforms are DIFFERENT from each other.
 
 Dataset: {product_list}`;
 
@@ -41,7 +54,7 @@ export async function POST({ request }: RequestEvent) {
       messages = [
         {
           role: 'system' as const,
-          content: 'You are an expert e-commerce analyst. Provide ONLY the requested format - no explanations, no analysis steps, just the recommendations.'
+          content: 'You are an expert in online selling platforms and resale markets. Recommend only legitimate platforms where individuals can sell their own items (NOT retail stores like Nike, Amazon, etc.). Provide ONLY the requested format - no explanations, no analysis steps, just the recommendations.'
         },
         {
           role: 'user' as const,
